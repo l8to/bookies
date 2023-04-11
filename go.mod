@@ -1,3 +1,3 @@
-module github.com/gocolly/colly/v2
+module github.com/l8to/bookies
 
-go 1.12
+go 1.20.2
