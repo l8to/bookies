@@ -20,7 +20,7 @@ func SportParlayBet(c dto.SportBetDetail) error {
 	}
 
 	win := totalWin(c.TotalBetOdds, c.Stake)
-	err = validateLimit(c.Stake, c.MaxStakeLimit, c.MinStakeLimit, win, c.MaxPayout)
+	err = ValidateLimit(c.Stake, c.MaxStakeLimit, c.MinStakeLimit, win, c.MaxPayout)
 	if err != nil {
 		return err
 	}

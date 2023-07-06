@@ -1,14 +1,14 @@
 package validate
 
-func validateLimit(stake, maxStakeLimit, minStakeLimit, totalWin, maxPayout uint) error {
+// ValidateLimit checks if the stake, total win, and payout limits are within acceptable ranges.
+// It returns an error if any of the limits exceed their respective thresholds.
+func ValidateLimit(stake, maxStakeLimit, minStakeLimit, totalWin, maxPayout uint) error {
 	if !payoutLimit(totalWin, maxPayout) {
 		return ErrOverMaxPayout
 	}
-
 	if !stakeMaxLimit(stake, maxStakeLimit) {
 		return ErrOverMaxStakeLimit
 	}
-
 	if !stakeMinLimit(stake, minStakeLimit) {
 		return ErrLessThanMinStakeLimit
 	}
