@@ -2,10 +2,12 @@ package validate
 
 import (
 	"testing"
+
+	"github.com/l8to/bookies/dto"
 )
 
 func TestValidateSingleBet(t *testing.T) {
-	errOver := SportParlayBet(&SportBetDetail{
+	errOver := SportParlayBet(dto.SportBetDetail{
 		Stake:           1000,
 		CreditBalance:   1000,
 		ParlayCount:     1,
@@ -16,7 +18,7 @@ func TestValidateSingleBet(t *testing.T) {
 		t.Errorf("should return ErrOverSingleStakeLimit, but got %v", errOver)
 	}
 
-	errAllowed := validateSingleBet(&SportBetDetail{
+	errAllowed := validateSingleBet(dto.SportBetDetail{
 		ParlayCount:     1,
 		IsSingleAllowed: false,
 	})
@@ -26,7 +28,7 @@ func TestValidateSingleBet(t *testing.T) {
 }
 
 func TestStakeOverCreditBalance(t *testing.T) {
-	err := SportParlayBet(&SportBetDetail{
+	err := SportParlayBet(dto.SportBetDetail{
 		CreditBalance: 10,
 		Stake:         11,
 	})
@@ -36,7 +38,7 @@ func TestStakeOverCreditBalance(t *testing.T) {
 }
 
 func TestOverSingleBetLimit(t *testing.T) {
-	err := SportParlayBet(&SportBetDetail{
+	err := SportParlayBet(dto.SportBetDetail{
 		CreditBalance:   1000,
 		Stake:           1000,
 		ParlayCount:     1,

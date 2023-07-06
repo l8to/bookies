@@ -1,36 +1,28 @@
 package validate
 
 func validateLimit(stake, maxStakeLimit, minStakeLimit, totalWin, maxPayout uint) error {
-	if payoutLimit(totalWin, maxPayout) == false {
+	if !payoutLimit(totalWin, maxPayout) {
 		return ErrOverMaxPayout
 	}
 
-	if stakeMaxLimit(stake, maxStakeLimit) == false {
+	if !stakeMaxLimit(stake, maxStakeLimit) {
 		return ErrOverMaxStakeLimit
 	}
 
-	if stakeMinLimit(stake, minStakeLimit) == false {
+	if !stakeMinLimit(stake, minStakeLimit) {
 		return ErrLessThanMinStakeLimit
 	}
 	return nil
 }
 
 func payoutLimit(totalWin, maxPayout uint) bool {
-	if totalWin > maxPayout {
-		return false
-	}
-	return true
+	return totalWin <= maxPayout
 }
 
 func stakeMaxLimit(stake, maxStakeLimit uint) bool {
-	if stake > maxStakeLimit {
-		return false
-	}
-	return true
+	return stake <= maxStakeLimit
 }
+
 func stakeMinLimit(stake, minStakeLimit uint) bool {
-	if stake < minStakeLimit {
-		return false
-	}
-	return true
+	return stake >= minStakeLimit
 }
