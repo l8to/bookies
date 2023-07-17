@@ -5,7 +5,7 @@ import "github.com/l8to/bookies/dto"
 func SportParlayBet(c dto.SportBetDetail) error {
 	var err error
 
-	if !validateCredit(c.CreditBalance, c.Stake) {
+	if !ValidateCredit(c.CreditBalance, c.Stake) {
 		return ErrInsufficientCredit
 	}
 
