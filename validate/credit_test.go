@@ -1,8 +1,9 @@
 package validate
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateCredit(t *testing.T) {
@@ -20,7 +21,7 @@ func TestValidateCredit(t *testing.T) {
 		{credit: 1000, stake: 1000, expected: true},
 	}
 	for _, test := range tests {
-		v := validateCredit(test.credit, test.stake)
+		v := ValidateCredit(test.credit, test.stake)
 		assert.Equal(t, test.expected, v)
 	}
 }
