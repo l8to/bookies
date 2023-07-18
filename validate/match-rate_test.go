@@ -7,6 +7,38 @@ import (
 	"github.com/l8to/bookies/dto"
 )
 
+func TestValidateMatchTime(t *testing.T) {
+	koTime := time.Date(2022, time.January, 1, 9, 0, 0, 0, time.UTC)
+	isLive := false
+
+	testCases := []struct {
+		koTime   time.Time
+		isLive   bool
+		oddsType string
+		expected bool
+	}{
+		{koTime, isLive, "ht_hdp_home", true},                           // oddsType is "ht_hdp_home", should return true
+		{koTime, isLive, "ht_hdp_away", true},                           // oddsType is "ht_hdp_away", should return true
+		{koTime, isLive, "ht_ou_over", true},                            // oddsType is "ht_ou_over", should return true
+		{koTime, isLive, "ht_ou_under", true},                           // oddsType is "ht_ou_under", should return true
+		{koTime, isLive, "ft_hdp_home", true},                           // oddsType is not an HT odds type, should return true
+		{koTime, isLive, "ft_hdp_away", true},                           // oddsType is not an HT odds type, should return true
+		{koTime, isLive, "ft_ou_over", true},                            // oddsType is not an HT odds type, should return true
+		{koTime, isLive, "ft_ou_under", true},                           // oddsType is not an HT odds type, should return true
+		{koTime, true, "ht_hdp_home", false},                            // isLive is true, should return false
+		{time.Now().Add(-time.Minute * 50), true, "ht_ou_under", false}, // oddsType is "ht_ou_under", should return true
+		{time.Now().Add(time.Hour), true, "ft_hdp_home", false},         // oddsType is not an HT odds type, should return true
+	}
+
+	for _, tc := range testCases {
+		actual := ValidateMatchTime(tc.koTime, tc.isLive, tc.oddsType)
+		if actual != tc.expected {
+			t.Errorf("Expected %v for koTime %v, isLive %v, and oddsType %s, got %v",
+				tc.expected, tc.koTime, tc.isLive, tc.oddsType, actual)
+		}
+	}
+}
+
 func TestValidateMatchKOTime(t *testing.T) {
 	testCases := []struct {
 		name     string

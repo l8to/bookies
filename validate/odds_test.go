@@ -4,47 +4,35 @@ import (
 	"testing"
 
 	"github.com/dollarsignteam/go-utils"
+
 	"github.com/l8to/bookies/dto"
 )
 
 func TestValidateOdds(t *testing.T) {
-	parlay := dto.TicketParlay{
-		OddsType: "HdpHome",
-		Odds:     2.5,
-	}
 	matchRate := dto.MatchRate{
-		HdpHome: utils.PointerOf(2.5),
+		Hdp:       utils.PointerOf(2.0),
+		HdpAway:   utils.PointerOf(3.14),
+		FhHdpHome: utils.PointerOf(1.5),
 	}
-	result := ValidateOdds(parlay, matchRate)
-	if !result {
-		t.Errorf("Expected true but got false")
-	}
-}
 
-func TestValidateOdds_InvalidOddsType(t *testing.T) {
-	parlay := dto.TicketParlay{
-		OddsType: "invalidOddsType",
-		Odds:     2.5,
+	testCases := []struct {
+		oddsType string
+		odds     float64
+		expected bool
+	}{
+		{"Hdp", 2.0, true},
+		{"HdpAway", 3.14, true},
+		{"FhHdpHome", 1.8, false},
+		{"FhHdp", 2.5, false},
+		{"FhOu", 2.0, false},
+		{"InvalidType", 2.0, false},
 	}
-	matchRate := dto.MatchRate{
-		HdpHome: utils.PointerOf(2.5),
-	}
-	result := ValidateOdds(parlay, matchRate)
-	if result {
-		t.Errorf("Expected false but got true")
-	}
-}
 
-func TestValidateOdds_MismatchedOdds(t *testing.T) {
-	parlay := dto.TicketParlay{
-		OddsType: "HdpHome",
-		Odds:     2.5,
-	}
-	matchRate := dto.MatchRate{
-		HdpHome: utils.PointerOf(3.0),
-	}
-	result := ValidateOdds(parlay, matchRate)
-	if result {
-		t.Errorf("Expected false but got true")
+	for _, tc := range testCases {
+		actual := ValidateOdds(tc.oddsType, tc.odds, matchRate)
+		if actual != tc.expected {
+			t.Errorf("Expected %v for oddsType %s, odds %f, and matchRate %+v, got %v",
+				tc.expected, tc.oddsType, tc.odds, matchRate, actual)
+		}
 	}
 }

@@ -6,6 +6,21 @@ import (
 	"github.com/l8to/bookies/dto"
 )
 
+func ValidateMatchTime(koTime time.Time, isLive bool, oddsType string) bool {
+	isHt := oddsType == "ht_hdp_home" || oddsType == "ht_hdp_away" || oddsType == "ht_ou_over" || oddsType == "ht_ou_under"
+	if isHt {
+		if valid := ValidateMatchKOTime(koTime, isLive); !valid {
+			return false
+		}
+	}
+	if !isHt {
+		if valid := ValidateMatchKOTimeHT(koTime, isLive); !valid {
+			return false
+		}
+	}
+	return true
+}
+
 func ValidateMatchKOTime(koTime time.Time, isLive bool) bool {
 	unixTimeNow := time.Now().Unix()
 	if isLive && koTime.Unix() <= unixTimeNow {
