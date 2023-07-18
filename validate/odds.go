@@ -8,13 +8,13 @@ import (
 	"github.com/l8to/bookies/helper"
 )
 
-func ValidateOdds(parlay dto.TicketParlay, matchRate dto.MatchRate) bool {
-	oddsRate := helper.GetStructValueByKeyName(matchRate, strcase.ToCamel(parlay.OddsType))
+func ValidateOdds(oddsType string, odds float64, matchRate dto.MatchRate) bool {
+	oddsRate := helper.GetStructValueByKeyName(matchRate, strcase.ToCamel(oddsType))
 	floatValue, ok := oddsRate.(*float64)
 	if !ok {
 		return false
 	}
-	if parlay.Odds != utils.ValueOf(floatValue) {
+	if odds != utils.ValueOf(floatValue) {
 		return false
 	}
 	return true
