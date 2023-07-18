@@ -2,7 +2,6 @@ package dto
 
 type (
 	User struct {
-		ID          int32
 		OddsType    int32
 		IsSingle    bool
 		IsSuspended bool

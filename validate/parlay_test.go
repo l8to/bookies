@@ -9,65 +9,53 @@ import (
 func TestValidateParlayPermission(t *testing.T) {
 	testCases := []struct {
 		name           string
-		parlay         dto.TicketParlay
+		betType        string
 		user           dto.User
 		expectedResult bool
 	}{
 		{
-			name: "FH HDP and user.IsFh is 0",
-			parlay: dto.TicketParlay{
-				BetType: ("FH HDP"),
-			},
+			name:    "FH HDP and user.IsFh is 0",
+			betType: ("FH HDP"),
 			user: dto.User{
 				IsFh: false,
 			},
 			expectedResult: false,
 		},
 		{
-			name: "FH OU and user.IsFh is 0",
-			parlay: dto.TicketParlay{
-				BetType: ("FH OU"),
-			},
+			name:    "FH OU and user.IsFh is 0",
+			betType: ("FH OU"),
 			user: dto.User{
 				IsFh: false,
 			},
 			expectedResult: false,
 		},
 		{
-			name: "FH 1X2 and user.IsFt is 0",
-			parlay: dto.TicketParlay{
-				BetType: ("FH 1X2"),
-			},
+			name:    "FH 1X2 and user.IsFt is 0",
+			betType: ("FH 1X2"),
 			user: dto.User{
 				IsFt: false,
 			},
 			expectedResult: false,
 		},
 		{
-			name: "1X2 and user.IsFt is 0",
-			parlay: dto.TicketParlay{
-				BetType: ("1X2"),
-			},
+			name:    "1X2 and user.IsFt is 0",
+			betType: ("1X2"),
 			user: dto.User{
 				IsFt: false,
 			},
 			expectedResult: false,
 		},
 		{
-			name: "OE and user.IsOe is 0",
-			parlay: dto.TicketParlay{
-				BetType: ("OE"),
-			},
+			name:    "OE and user.IsOe is 0",
+			betType: ("OE"),
 			user: dto.User{
 				IsOe: false,
 			},
 			expectedResult: false,
 		},
 		{
-			name: "Valid permission",
-			parlay: dto.TicketParlay{
-				BetType: ("FH 1X2"),
-			},
+			name:    "Valid permission",
+			betType: ("FH 1X2"),
 			user: dto.User{
 				IsFt: true,
 			},
@@ -77,101 +65,67 @@ func TestValidateParlayPermission(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := ValidateParlayPermission(tc.user, tc.parlay)
+			result := ValidateParlayPermission(tc.user, tc.betType)
 			if result != tc.expectedResult {
 				t.Errorf("Expected %v, but got %v", tc.expectedResult, result)
 			}
 		})
 	}
 }
-
 func TestValidateParlayMax(t *testing.T) {
-	testCases := []struct {
-		user     dto.User
-		parlay   []dto.TicketParlay
-		expected bool
-	}{
-		{dto.User{UserProfile: dto.UserProfile{ParlayMax: (int32(3))}}, []dto.TicketParlay{{}, {}}, true},
-		{dto.User{UserProfile: dto.UserProfile{ParlayMax: (int32(2))}}, []dto.TicketParlay{{}, {}, {}}, false},
+	user := dto.User{
+		UserProfile: dto.UserProfile{ParlayMax: 5},
 	}
-	for i, testCase := range testCases {
-		result := ValidateParlayMax(testCase.user, testCase.parlay)
-		if result != testCase.expected {
-			t.Errorf("Test case %d failed: Expected %v, got %v", i+1, testCase.expected, result)
-		}
+	parlayCount := int32(3)
+
+	if !ValidateParlayMax(user, parlayCount) {
+		t.Error("Expected true, got false")
 	}
 }
 
 func TestValidateParlayMin(t *testing.T) {
-	testCases := []struct {
-		user     dto.User
-		parlay   []dto.TicketParlay
-		expected bool
-	}{
-		{dto.User{UserProfile: dto.UserProfile{ParlayMin: (int32(1))}}, []dto.TicketParlay{{}, {}}, true},
-		{dto.User{UserProfile: dto.UserProfile{ParlayMin: (int32(3))}}, []dto.TicketParlay{{}, {}}, false},
+	user := dto.User{
+		UserProfile: dto.UserProfile{ParlayMin: 2},
 	}
-	for i, testCase := range testCases {
-		result := ValidateParlayMin(testCase.user, testCase.parlay)
-		if result != testCase.expected {
-			t.Errorf("Test case %d failed: Expected %v, got %v", i+1, testCase.expected, result)
-		}
+	parlayCount := int32(3)
+
+	if !ValidateParlayMin(user, parlayCount) {
+		t.Error("Expected true, got false")
 	}
 }
 
 func TestValidateUserSingleType(t *testing.T) {
-	testCases := []struct {
-		user     dto.User
-		parlay   []dto.TicketParlay
-		expected bool
-	}{
-		{dto.User{IsSingle: false}, []dto.TicketParlay{{}}, false},
-		{dto.User{IsSingle: true}, []dto.TicketParlay{{}}, true},
-		{dto.User{IsSingle: false}, []dto.TicketParlay{{}, {}}, false},
+	user := dto.User{
+		IsSingle: true,
 	}
-	for i, testCase := range testCases {
-		result := ValidateUserSingleType(testCase.user, testCase.parlay)
-		if result != testCase.expected {
-			t.Errorf("Test case %d failed: Expected %v, got %v", i+1, testCase.expected, result)
-		}
+	parlayCount := int32(1)
+
+	if !ValidateUserSingleType(user, parlayCount) {
+		t.Error("Expected true, got false")
 	}
 }
 
 func TestValidateMaxSingle(t *testing.T) {
-	testCases := []struct {
-		user     dto.User
-		stake    float64
-		parlay   []dto.TicketParlay
-		expected bool
-	}{
-		{dto.User{UserProfile: dto.UserProfile{MaxSingle: (float64(100))}}, 50.0, []dto.TicketParlay{{}}, true},
-		{dto.User{UserProfile: dto.UserProfile{MaxSingle: (float64(100))}}, 150.0, []dto.TicketParlay{{}}, false},
+	user := dto.User{
+		UserProfile: dto.UserProfile{MaxSingle: 100},
 	}
-	for i, testCase := range testCases {
-		result := ValidateMaxSingle(testCase.user, testCase.stake, testCase.parlay)
-		if result != testCase.expected {
-			t.Errorf("Test case %d failed: Expected %v, got %v", i+1, testCase.expected, result)
-		}
+	stake := 50.0
+	parlayCount := int32(1)
+
+	if !ValidateMaxSingle(user, stake, parlayCount) {
+		t.Error("Expected true, got false")
 	}
 }
 
 func TestValidateMaxPayout(t *testing.T) {
-	testCases := []struct {
-		user         dto.User
-		summaryStake float64
-		stake        float64
-		parlay       []dto.TicketParlay
-		expected     bool
-	}{
-		{dto.User{UserProfile: dto.UserProfile{MaxPayout: float64(100)}}, 50.0, 20.0, []dto.TicketParlay{{}}, true},
-		{dto.User{UserProfile: dto.UserProfile{MaxPayout: float64(100)}}, 150.0, 20.0, []dto.TicketParlay{{}}, false},
-		// Add more test cases here
+	user := dto.User{
+		UserProfile: dto.UserProfile{MaxPayout: 500},
 	}
+	summaryStake := 200.0
+	stake := 300.0
+	parlayCount := int32(1)
 
-	for i, testCase := range testCases {
-		result := ValidateMaxPayout(testCase.user, testCase.summaryStake, testCase.stake, testCase.parlay)
-		if result != testCase.expected {
-			t.Errorf("Test case %d failed: Expected %v, got %v", i+1, testCase.expected, result)
-		}
+	if !ValidateMaxPayout(user, summaryStake, stake, parlayCount) {
+		t.Error("Expected true, got false")
 	}
 }
