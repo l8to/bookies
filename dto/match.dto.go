@@ -1,13 +1,6 @@
 package dto
 
-type Match struct {
-	ID     int64
-	Active int32
-}
-
 type MatchRate struct {
-	ID        uint64
-	MatchID   int64
 	Rate      int32
 	Status    int32
 	IsLive    bool
@@ -23,5 +16,4 @@ type MatchRate struct {
 	FhOu      *float64
 	FhOuOver  *float64
 	FhOuUnder *float64
-	Match     Match
 }

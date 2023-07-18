@@ -24,16 +24,16 @@ func ValidateMatchKOTimeHT(koTime time.Time, isLive bool) bool {
 	return true
 }
 
-func ValidateMatchRateActive(user dto.User, matchRate dto.MatchRate) bool {
-	if matchRate.Status != 1 {
+func ValidateMatchRateActive(user dto.User, matchRateStatus uint, matchActive uint) bool {
+	if matchRateStatus != 1 {
 		return false
 	}
-	if matchRate.Match.Active == 0 || matchRate.Match.Active > 3 {
+	if matchActive == 0 || matchActive > 3 {
 		return false
 	}
 	return true
 }
 
-func ValidateMatchRateAndUserOddsType(user dto.User, matchRate dto.MatchRate) bool {
-	return user.OddsType == matchRate.Rate
+func ValidateMatchRateAndUserOddsType(user dto.User, rate int32) bool {
+	return user.OddsType == rate
 }

@@ -94,75 +94,45 @@ func TestValidateMatchKOTimeHT(t *testing.T) {
 }
 
 func TestValidateMatchRateActive(t *testing.T) {
-	user := dto.User{}
-	matchRate := dto.MatchRate{}
 	testCases := []struct {
-		desc     string
-		status   int32
-		active   int32
-		expected bool
+		user            dto.User
+		matchRateStatus uint
+		matchActive     uint
+		expected        bool
 	}{
-		{
-			desc:     "match rate status is not 1",
-			status:   0,
-			active:   2,
-			expected: false,
-		},
-		{
-			desc:     "match rate match active is 0",
-			status:   1,
-			active:   0,
-			expected: false,
-		},
-		{
-			desc:     "match rate match active is greater than 3",
-			status:   1,
-			active:   4,
-			expected: false,
-		},
-		{
-			desc:     "valid match rate",
-			status:   1,
-			active:   2,
-			expected: true,
-		},
+		{dto.User{}, 1, 0, false},
+		{dto.User{}, 2, 2, false},
+		{dto.User{}, 1, 4, false},
+		{dto.User{}, 1, 1, true},
+		{dto.User{}, 1, 2, true},
+		{dto.User{}, 1, 3, true},
 	}
+
 	for _, tc := range testCases {
-		matchRate.Status = tc.status
-		matchRate.Match.Active = tc.active
-		if result := ValidateMatchRateActive(user, matchRate); result != tc.expected {
-			t.Errorf("Test case failed for %s: Expected %v, got %v", tc.desc, tc.expected, result)
+		actual := ValidateMatchRateActive(tc.user, tc.matchRateStatus, tc.matchActive)
+		if actual != tc.expected {
+			t.Errorf("Expected %v for user %+v, matchRateStatus %d, and matchActive %d, got %v",
+				tc.expected, tc.user, tc.matchRateStatus, tc.matchActive, actual)
 		}
 	}
 }
 
 func TestValidateMatchRateAndUserOddsType(t *testing.T) {
 	testCases := []struct {
-		user      dto.User
-		matchRate dto.MatchRate
-		expected  bool
+		user     dto.User
+		rate     int32
+		expected bool
 	}{
-		{
-			dto.User{
-				OddsType: 20,
-			},
-			dto.MatchRate{
-				Rate: int32(20),
-			},
-			true},
-		{
-			dto.User{
-				OddsType: 20,
-			},
-			dto.MatchRate{
-				Rate: int32(10),
-			},
-			false},
+		{dto.User{OddsType: 2}, 2, true},
+		{dto.User{OddsType: 2}, 1, false},
+		{dto.User{OddsType: 3}, 3, true},
+		{dto.User{OddsType: 3}, 5, false},
 	}
-	for i, testCase := range testCases {
-		result := ValidateMatchRateAndUserOddsType(testCase.user, testCase.matchRate)
-		if result != testCase.expected {
-			t.Errorf("Test case %d failed: Expected %v, got %v", i+1, testCase.expected, result)
+
+	for _, tc := range testCases {
+		actual := ValidateMatchRateAndUserOddsType(tc.user, tc.rate)
+		if actual != tc.expected {
+			t.Errorf("Expected %v for user %+v and rate %d, got %v", tc.expected, tc.user, tc.rate, actual)
 		}
 	}
 }
