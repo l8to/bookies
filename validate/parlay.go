@@ -27,8 +27,7 @@ func ValidateUserSingleType(user dto.User, parlayCount int32) bool {
 	return parlayCount == 1 && user.IsSingle
 }
 
-func ValidateMaxPerMatchStake(user dto.User, summaryStake float64, stake float64, parlay []dto.TicketParlay) bool {
-	parlayCount := len(parlay)
+func ValidateMaxPerMatchStake(user dto.User, summaryStake float64, stake float64, parlayCount int32) bool {
 	return parlayCount == 1 && user.UserProfile.MaxSingle >= (summaryStake+stake)
 }
 
