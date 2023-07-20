@@ -106,26 +106,88 @@ func TestValidateUserSingleType(t *testing.T) {
 }
 
 func TestValidateMaxSingle(t *testing.T) {
-	user := dto.User{
-		UserProfile: dto.UserProfile{MaxSingle: 100},
+	testCases := []struct {
+		name           string
+		user           dto.User
+		parlay         []dto.TicketParlay
+		summaryStake   float64
+		stake          float64
+		expectedResult bool
+	}{
+		{
+			name: "Valid Max Single",
+			user: dto.User{
+				UserProfile: dto.UserProfile{
+					MaxSingle: 100.0,
+				},
+			},
+			parlay: []dto.TicketParlay{
+				dto.TicketParlay{},
+			},
+			summaryStake:   50.0,
+			stake:          30.0,
+			expectedResult: true,
+		},
+		{
+			name: "Invalid Max Single",
+			user: dto.User{
+				UserProfile: dto.UserProfile{
+					MaxSingle: 50.0,
+				},
+			},
+			parlay: []dto.TicketParlay{
+				dto.TicketParlay{},
+			},
+			summaryStake:   70.0,
+			stake:          20.0,
+			expectedResult: false,
+		},
 	}
-	stake := 50.0
-	parlayCount := int32(1)
 
-	if !ValidateMaxSingle(user, stake, parlayCount) {
-		t.Error("Expected true, got false")
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := ValidateMaxPerMatchStake(tc.user, tc.summaryStake, tc.stake, tc.parlay)
+			if result != tc.expectedResult {
+				t.Errorf("Expected %t, but got %t", tc.expectedResult, result)
+			}
+		})
 	}
 }
 
 func TestValidateMaxPayout(t *testing.T) {
-	user := dto.User{
-		UserProfile: dto.UserProfile{MaxPayout: 500},
+	testCases := []struct {
+		name           string
+		user           dto.User
+		oddsStake      float64
+		expectedResult bool
+	}{
+		{
+			name: "Valid Max Payout",
+			user: dto.User{
+				UserProfile: dto.UserProfile{
+					MaxPayout: 1000.0,
+				},
+			},
+			oddsStake:      500.0,
+			expectedResult: true,
+		},
+		{
+			name: "Invalid Max Payout",
+			user: dto.User{
+				UserProfile: dto.UserProfile{
+					MaxPayout: 200.0,
+				},
+			},
+			oddsStake:      300.0,
+			expectedResult: false,
+		},
 	}
-	summaryStake := 200.0
-	stake := 300.0
-	parlayCount := int32(1)
-
-	if !ValidateMaxPayout(user, summaryStake, stake, parlayCount) {
-		t.Error("Expected true, got false")
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := ValidateMaxPayout(tc.user, tc.oddsStake)
+			if result != tc.expectedResult {
+				t.Errorf("Expected %t, but got %t", tc.expectedResult, result)
+			}
+		})
 	}
 }
