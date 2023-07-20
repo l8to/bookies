@@ -109,7 +109,7 @@ func TestValidateMaxSingle(t *testing.T) {
 	testCases := []struct {
 		name           string
 		user           dto.User
-		parlay         []dto.TicketParlay
+		parlayCount    int32
 		summaryStake   float64
 		stake          float64
 		expectedResult bool
@@ -121,9 +121,7 @@ func TestValidateMaxSingle(t *testing.T) {
 					MaxSingle: 100.0,
 				},
 			},
-			parlay: []dto.TicketParlay{
-				dto.TicketParlay{},
-			},
+			parlayCount:    1,
 			summaryStake:   50.0,
 			stake:          30.0,
 			expectedResult: true,
@@ -135,9 +133,7 @@ func TestValidateMaxSingle(t *testing.T) {
 					MaxSingle: 50.0,
 				},
 			},
-			parlay: []dto.TicketParlay{
-				dto.TicketParlay{},
-			},
+			parlayCount:    1,
 			summaryStake:   70.0,
 			stake:          20.0,
 			expectedResult: false,
@@ -146,7 +142,7 @@ func TestValidateMaxSingle(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := ValidateMaxPerMatchStake(tc.user, tc.summaryStake, tc.stake, tc.parlay)
+			result := ValidateMaxPerMatchStake(tc.user, tc.summaryStake, tc.stake, tc.parlayCount)
 			if result != tc.expectedResult {
 				t.Errorf("Expected %t, but got %t", tc.expectedResult, result)
 			}
