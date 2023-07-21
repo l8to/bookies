@@ -1,15 +1,16 @@
 package validate
 
 import (
+	"github.com/l8to/bookies/constant"
 	"github.com/l8to/bookies/dto"
 )
 
 func ValidateParlayPermission(user dto.User, betType string) bool {
-	if (betType == "FH HDP" || betType == "FH OU") && !user.IsFh {
+	if (betType == constant.BetTypeFhHdp || betType == constant.BetTypeFhOu) && !user.IsFh {
 		return false
-	} else if (betType == "FH 1X2" || betType == "1X2") && !user.IsFt {
+	} else if (betType == constant.BetTypeFh1x2 || betType == constant.BetType1x2) && !user.IsFt {
 		return false
-	} else if (betType == "OE") && !user.IsOe {
+	} else if (betType == constant.BetTypeOe) && !user.IsOe {
 		return false
 	}
 	return true
