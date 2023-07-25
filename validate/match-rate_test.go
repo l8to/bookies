@@ -2,127 +2,154 @@ package validate
 
 import (
 	"testing"
-	"time"
 
+	"github.com/dollarsignteam/go-utils"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/l8to/bookies/constant"
 	"github.com/l8to/bookies/dto"
 )
 
 func TestValidateMatchTime(t *testing.T) {
-	koTime := time.Date(2022, time.January, 1, 9, 0, 0, 0, time.UTC)
-	isLive := false
+	t.Run("Invalid HT Odds Type", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:30:00")
+		isValid := ValidateMatchTime(koTime, timeNow, "ht_hdp_home")
+		assert.False(t, isValid)
+	})
 
-	testCases := []struct {
-		koTime   time.Time
-		isLive   bool
-		oddsType string
-		expected bool
-	}{
-		{koTime, isLive, "ht_hdp_home", true},                           // oddsType is "ht_hdp_home", should return true
-		{koTime, isLive, "ht_hdp_away", true},                           // oddsType is "ht_hdp_away", should return true
-		{koTime, isLive, "ht_ou_over", true},                            // oddsType is "ht_ou_over", should return true
-		{koTime, isLive, "ht_ou_under", true},                           // oddsType is "ht_ou_under", should return true
-		{koTime, isLive, "ft_hdp_home", true},                           // oddsType is not an HT odds type, should return true
-		{koTime, isLive, "ft_hdp_away", true},                           // oddsType is not an HT odds type, should return true
-		{koTime, isLive, "ft_ou_over", true},                            // oddsType is not an HT odds type, should return true
-		{koTime, isLive, "ft_ou_under", true},                           // oddsType is not an HT odds type, should return true
-		{koTime, true, "ht_hdp_home", false},                            // isLive is true, should return false
-		{time.Now().Add(-time.Minute * 50), true, "ht_ou_under", false}, // oddsType is "ht_ou_under", should return true
-		{time.Now().Add(time.Hour), true, "ft_hdp_home", false},         // oddsType is not an HT odds type, should return true
-	}
+	t.Run("Invalid non-HT Odds Type", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:10:00")
+		isValid := ValidateMatchTime(koTime, timeNow, "ft")
+		assert.False(t, isValid)
+	})
 
-	for _, tc := range testCases {
-		actual := ValidateMatchTime(tc.koTime, tc.isLive, tc.oddsType)
-		if actual != tc.expected {
-			t.Errorf("Expected %v for koTime %v, isLive %v, and oddsType %s, got %v",
-				tc.expected, tc.koTime, tc.isLive, tc.oddsType, actual)
-		}
-	}
+	t.Run("Valid HT Odds Type", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:50:00")
+		isValid := ValidateMatchTime(koTime, timeNow, "ht_hdp_home")
+		assert.True(t, isValid)
+	})
+
+	t.Run("Valid non-HT Odds Type", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:10:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:00:00")
+		isValid := ValidateMatchTime(koTime, timeNow, "ft")
+		assert.True(t, isValid)
+	})
 }
 
 func TestValidateMatchKOTime(t *testing.T) {
-	testCases := []struct {
-		name     string
-		koTime   time.Time
-		isLive   bool
-		expected bool
-	}{
-		{
-			name:     "WithLiveMatch",
-			koTime:   time.Now().Add(time.Hour),
-			isLive:   true,
-			expected: true,
-		},
-		{
-			name:     "WithExpiredLiveMatch",
-			koTime:   time.Now().Add(-time.Hour),
-			isLive:   true,
-			expected: false,
-		},
-		{
-			name:     "WithNonLiveMatch",
-			koTime:   time.Now().Add(time.Hour),
-			isLive:   false,
-			expected: true,
-		},
-	}
+	t.Run("koTime < timeNow", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:10:00")
+		expected := false
 
-	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
-			result := ValidateMatchKOTime(testCase.koTime, testCase.isLive)
-			if result != testCase.expected {
-				t.Errorf("Expected %v but got %v", testCase.expected, result)
-			}
-		})
-	}
+		result := ValidateMatchKOTime(koTime, timeNow)
+
+		if result != expected {
+			t.Errorf("Expected %v, but got %v", expected, result)
+		}
+	})
+
+	t.Run("koTime = timeNow", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:00:00")
+		expected := false
+
+		result := ValidateMatchKOTime(koTime, timeNow)
+
+		if result != expected {
+			t.Errorf("Expected %v, but got %v", expected, result)
+		}
+	})
+
+	t.Run("koTime > timeNow", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 17:00:00")
+		expected := true
+
+		result := ValidateMatchKOTime(koTime, timeNow)
+
+		if result != expected {
+			t.Errorf("Expected %v, but got %v", expected, result)
+		}
+	})
 }
 
 func TestValidateMatchKOTimeHT(t *testing.T) {
-	testCases := []struct {
-		name     string
-		koTime   time.Time
-		isLive   bool
-		expected bool
-	}{
-		{
-			name:     "Before Half Time and Is Live",
-			koTime:   time.Now().Add(-time.Minute * 30),
-			isLive:   true,
-			expected: false,
-		},
-		{
-			name:     "After Half Time and Is Live",
-			koTime:   time.Now().Add(time.Minute * 70),
-			isLive:   true,
-			expected: false,
-		},
-		{
-			name:     "Between Half Time and Full Time and Is Live",
-			koTime:   time.Now().Add(-time.Minute * 50),
-			isLive:   true,
-			expected: true,
-		},
-		{
-			name:     "Before Half Time and Not Live",
-			koTime:   time.Now().Add(-time.Minute * 30),
-			isLive:   false,
-			expected: true,
-		},
-		{
-			name:     "After Half Time and Not Live",
-			koTime:   time.Now().Add(time.Minute * 70),
-			isLive:   false,
-			expected: true,
-		},
-	}
+	t.Run("timeNow = a day before koTime", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-19 17:30:00")
+		expected := false
 
-	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
-			result := ValidateMatchKOTimeHT(testCase.koTime, testCase.isLive)
-			if result != testCase.expected {
-				t.Errorf("Expected %v but got %v", testCase.expected, result)
-			}
-		})
-	}
+		result := ValidateMatchKOTimeHT(koTime, timeNow)
+
+		if result != expected {
+			t.Errorf("Expected %v, but got %v", expected, result)
+		}
+	})
+
+	t.Run("timeNow = a day after koTime", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-23 09:30:00")
+		expected := false
+
+		result := ValidateMatchKOTimeHT(koTime, timeNow)
+
+		if result != expected {
+			t.Errorf("Expected %v, but got %v", expected, result)
+		}
+	})
+
+	t.Run("timeNow <  koTime", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 17:30:00")
+		expected := false
+
+		result := ValidateMatchKOTimeHT(koTime, timeNow)
+
+		if result != expected {
+			t.Errorf("Expected %v, but got %v", expected, result)
+		}
+	})
+
+	t.Run("timeNow < 45 minutes after koTime", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:30:00")
+		expected := false
+
+		result := ValidateMatchKOTimeHT(koTime, timeNow)
+
+		if result != expected {
+			t.Errorf("Expected %v, but got %v", expected, result)
+		}
+	})
+
+	t.Run("timeNow > 70 minutes after koTime", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 19:10:00")
+		expected := false
+
+		result := ValidateMatchKOTimeHT(koTime, timeNow)
+
+		if result != expected {
+			t.Errorf("Expected %v, but got %v", expected, result)
+		}
+	})
+
+	t.Run("timeNow > 45 minutes after koTime & timeNow < 60 minutes after koTime", func(t *testing.T) {
+		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:00:00")
+		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:50:00")
+		expected := true
+
+		result := ValidateMatchKOTimeHT(koTime, timeNow)
+
+		if result != expected {
+			t.Errorf("Expected %v, but got %v", expected, result)
+		}
+	})
 }
 
 func TestValidateMatchRateActive(t *testing.T) {

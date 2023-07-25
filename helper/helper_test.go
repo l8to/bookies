@@ -66,3 +66,62 @@ func BenchmarkGetStructValueByKeyName(b *testing.B) {
 		GetStructValueByKeyName(sportBet, fieldName)
 	}
 }
+
+func TestCalculateWlCommission(t *testing.T) {
+	testCases := []struct {
+		name           string
+		input          CalculateWlCommissionInput
+		expectedResult []float64
+	}{
+		{
+			name: "test 1",
+			input: CalculateWlCommissionInput{
+				Stake: 20,
+
+				CommMember: 6,
+				CommAgent:  13,
+				CommMaster: 13,
+				CommSenior: 13,
+				CommSuper:  13,
+				CommWeb:    13,
+
+				ShAgent:  0.3,
+				ShMaster: 0,
+				ShSenior: 0.6,
+				ShSuper:  0,
+				ShWeb:    0.1,
+			},
+			expectedResult: []float64{1.2, 0.62, 0, -1.56, 0, -0.26},
+		},
+		{
+			name: "test 2",
+			input: CalculateWlCommissionInput{
+				Stake: 50,
+
+				CommMember: 0,
+				CommAgent:  12,
+				CommMaster: 12,
+				CommSenior: 20,
+				CommSuper:  20,
+				CommWeb:    20,
+
+				ShAgent:  0.75,
+				ShMaster: 0,
+				ShSenior: 0.13,
+				ShSuper:  0.02,
+				ShWeb:    0.1,
+			},
+			expectedResult: []float64{0, 1.5, 0, -0.3, -0.2, -1},
+		},
+	}
+
+	for _, testCase := range testCases {
+		wlCommMember, wlCommAgent, WlCommMaster, WlCommSenior, WlCommSuper, WlCommWeb := CalculateWlCommission(testCase.input)
+		commissions := []float64{wlCommMember, wlCommAgent, WlCommMaster, WlCommSenior, WlCommSuper, WlCommWeb}
+		for i, commission := range commissions {
+			if commission != testCase.expectedResult[i] {
+				t.Errorf("%s commission%d: expected %.2f, got %.2f", testCase.name, i+1, testCase.expectedResult[i], commission)
+			}
+		}
+	}
+}
