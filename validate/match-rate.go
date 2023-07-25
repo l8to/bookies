@@ -9,34 +9,29 @@ import (
 	"github.com/l8to/bookies/dto"
 )
 
-func ValidateMatchTime(koTime time.Time, isLive bool, oddsType string) bool {
+func ValidateMatchTime(koTime time.Time, timeNow time.Time, oddsType string) bool {
 	isHt := slices.Contains(constant.HtOddsType, oddsType)
 	if isHt {
-		if valid := ValidateMatchKOTimeHT(koTime, isLive); !valid {
+		if valid := ValidateMatchKOTimeHT(koTime, timeNow); !valid {
 			return false
 		}
 	}
 	if !isHt {
-		if valid := ValidateMatchKOTime(koTime, isLive); !valid {
+		if valid := ValidateMatchKOTime(koTime, timeNow); !valid {
 			return false
 		}
 	}
 	return true
 }
 
-func ValidateMatchKOTime(koTime time.Time, isLive bool) bool {
-	unixTimeNow := time.Now().Unix()
-	if isLive && koTime.Unix() <= unixTimeNow {
-		return false
-	}
-	return true
+func ValidateMatchKOTime(koTime time.Time, timeNow time.Time) bool {
+	return koTime.Unix() > timeNow.Unix()
 }
 
-func ValidateMatchKOTimeHT(koTime time.Time, isLive bool) bool {
-	unixTimeNow := time.Now().Unix()
-	isBeforeHT := koTime.Add(time.Minute*45).Unix() > int64(unixTimeNow)
-	isAfterHT := koTime.Add(time.Minute*60).Unix() < int64(unixTimeNow)
-	if isLive && (isBeforeHT || isAfterHT) {
+func ValidateMatchKOTimeHT(koTime time.Time, timeNow time.Time) bool {
+	isBeforeHT := koTime.Add(time.Minute*45).Unix() > timeNow.Unix()
+	isAfterHT := koTime.Add(time.Minute*60).Unix() <= timeNow.Unix()
+	if isBeforeHT || isAfterHT {
 		return false
 	}
 	return true

@@ -66,3 +66,55 @@ func BenchmarkGetStructValueByKeyName(b *testing.B) {
 		GetStructValueByKeyName(sportBet, fieldName)
 	}
 }
+
+func TestCalculateWlCommission(t *testing.T) {
+	testCases := []struct {
+		name           string
+		input          CalculateWlCommissionRequest
+		expectedResult WlCommissionResponse
+	}{
+		{
+			name: "test 1",
+			input: CalculateWlCommissionRequest{
+				Stake:      20,
+				CommMember: 6,
+				CommAgent:  13,
+				CommMaster: 13,
+				CommSenior: 13,
+				CommSuper:  13,
+				CommWeb:    13,
+				ShAgent:    0.3,
+				ShMaster:   0,
+				ShSenior:   0.6,
+				ShSuper:    0,
+				ShWeb:      0.1,
+			},
+			expectedResult: WlCommissionResponse{1.2, 0.62, 0, -1.56, 0, -0.26},
+		},
+		{
+			name: "test 2",
+			input: CalculateWlCommissionRequest{
+				Stake:      50,
+				CommMember: 0,
+				CommAgent:  12,
+				CommMaster: 12,
+				CommSenior: 20,
+				CommSuper:  20,
+				CommWeb:    20,
+				ShAgent:    0.75,
+				ShMaster:   0,
+				ShSenior:   0.13,
+				ShSuper:    0.02,
+				ShWeb:      0.1,
+			},
+			expectedResult: WlCommissionResponse{0, 1.5, 0, -0.3, -0.2, -1},
+		},
+	}
+
+	for _, testCase := range testCases {
+		wlComm := CalculateWlCommission(testCase.input)
+		if wlComm != testCase.expectedResult {
+			t.Errorf("[%s]: expected %v, got %v", testCase.name, testCase.expectedResult, wlComm)
+		}
+	}
+}

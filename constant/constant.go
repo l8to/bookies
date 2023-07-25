@@ -1,5 +1,15 @@
 package constant
 
+import "time"
+
+const (
+	NewPartnerValidDateTime = 7 * 24 * time.Hour
+	TimeLayoutTime          = "15:04"
+	TimeLayoutDate          = "2006-01-02"
+	TimeLayoutDateTime      = "2006-01-02 15:04:05"
+	TimeLayoutMonth         = "2006-01"
+)
+
 var HtOddsType = []string{
 	"ht_hdp_home",
 	"ht_hdp_away",
