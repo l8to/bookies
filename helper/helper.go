@@ -2,7 +2,7 @@ package helper
 
 import "reflect"
 
-type UserWlCommission struct {
+type WlCommissionResponse struct {
 	WlCommMember float64
 	WlCommAgent  float64
 	WlCommMaster float64
@@ -11,21 +11,19 @@ type UserWlCommission struct {
 	WlCommWeb    float64
 }
 
-type CalculateWlCommissionInput struct {
-	Stake float64
-
+type CalculateWlCommissionRequest struct {
+	Stake      float64
 	CommMember float64
 	CommAgent  float64
 	CommMaster float64
 	CommSenior float64
 	CommSuper  float64
 	CommWeb    float64
-
-	ShAgent  float64
-	ShMaster float64
-	ShSenior float64
-	ShSuper  float64
-	ShWeb    float64
+	ShAgent    float64
+	ShMaster   float64
+	ShSenior   float64
+	ShSuper    float64
+	ShWeb      float64
 }
 
 func GetStructValueByKeyName(s interface{}, name string) interface{} {
@@ -40,7 +38,7 @@ func GetStructValueByKeyName(s interface{}, name string) interface{} {
 	return nil
 }
 
-func CalculateWlCommission(input CalculateWlCommissionInput) (float64, float64, float64, float64, float64, float64) {
+func CalculateWlCommission(input CalculateWlCommissionRequest) WlCommissionResponse {
 	agentCommDiff := input.CommAgent - input.CommMember
 	masterCommDiff := input.CommMaster - agentCommDiff - input.CommMember
 	seniorCommDiff := input.CommSenior - masterCommDiff - agentCommDiff - input.CommMember
@@ -53,5 +51,7 @@ func CalculateWlCommission(input CalculateWlCommissionInput) (float64, float64, 
 	WlCommSuper := (superCommDiff * (input.ShWeb) * (input.Stake / 100)) - ((input.Stake * input.CommSenior / 100) * input.ShSuper)
 	WlCommWeb := 0 - ((input.Stake * input.CommSuper / 100) * input.ShWeb)
 
-	return wlCommMember, wlCommAgent, WlCommMaster, WlCommSenior, WlCommSuper, WlCommWeb
+	return WlCommissionResponse{
+		wlCommMember, wlCommAgent, WlCommMaster, WlCommSenior, WlCommSuper, WlCommWeb,
+	}
 }
