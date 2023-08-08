@@ -11,31 +11,31 @@ import (
 )
 
 func TestValidateMatchTime(t *testing.T) {
-	t.Run("Invalid HT Odds Type", func(t *testing.T) {
+	t.Run("Invalid HT", func(t *testing.T) {
 		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:00:00")
 		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-20 18:30:00")
-		isValid := ValidateMatchTime(koTime, timeNow, "ht_hdp_home")
+		isValid := ValidateMatchTime(koTime, timeNow, true)
 		assert.False(t, isValid)
 	})
 
-	t.Run("Invalid non-HT Odds Type", func(t *testing.T) {
+	t.Run("Invalid FT", func(t *testing.T) {
 		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:00:00")
 		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:10:00")
-		isValid := ValidateMatchTime(koTime, timeNow, "ft")
+		isValid := ValidateMatchTime(koTime, timeNow, false)
 		assert.False(t, isValid)
 	})
 
-	t.Run("Valid HT Odds Type", func(t *testing.T) {
+	t.Run("Valid HT", func(t *testing.T) {
 		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:00:00")
 		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:50:00")
-		isValid := ValidateMatchTime(koTime, timeNow, "ht_hdp_home")
+		isValid := ValidateMatchTime(koTime, timeNow, true)
 		assert.True(t, isValid)
 	})
 
-	t.Run("Valid non-HT Odds Type", func(t *testing.T) {
+	t.Run("Valid FT", func(t *testing.T) {
 		koTime, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:10:00")
 		timeNow, _ := utils.Time.ParseInBangkokLocation(constant.TimeLayoutDateTime, "2023-07-21 18:00:00")
-		isValid := ValidateMatchTime(koTime, timeNow, "ft")
+		isValid := ValidateMatchTime(koTime, timeNow, false)
 		assert.True(t, isValid)
 	})
 }

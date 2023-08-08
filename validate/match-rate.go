@@ -3,20 +3,16 @@ package validate
 import (
 	"time"
 
-	"golang.org/x/exp/slices"
-
-	"github.com/l8to/bookies/constant"
 	"github.com/l8to/bookies/dto"
 )
 
-func ValidateMatchTime(koTime time.Time, timeNow time.Time, oddsType string) bool {
-	isHt := slices.Contains(constant.HtOddsType, oddsType)
-	if isHt {
+func ValidateMatchTime(koTime time.Time, timeNow time.Time, isLive bool) bool {
+	if isLive {
 		if valid := ValidateMatchKOTimeHT(koTime, timeNow); !valid {
 			return false
 		}
 	}
-	if !isHt {
+	if !isLive {
 		if valid := ValidateMatchKOTime(koTime, timeNow); !valid {
 			return false
 		}

@@ -10,13 +10,6 @@ const (
 	TimeLayoutMonth         = "2006-01"
 )
 
-var HtOddsType = []string{
-	"ht_hdp_home",
-	"ht_hdp_away",
-	"ht_ou_over",
-	"ht_ou_under",
-}
-
 const (
 	BetTypeFhHdp = "FH HDP"
 	BetTypeFhOu  = "FH OU"
