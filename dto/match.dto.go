@@ -16,6 +16,12 @@ type MatchRate struct {
 	FhOu      *float64
 	FhOuOver  *float64
 	FhOuUnder *float64
+	FtHome    *float64
+	FtDraw    *float64
+	FtAway    *float64
+	FhFtHome  *float64
+	FhFtDraw  *float64
+	FhFtAway  *float64
 	Odd       *float64
 	Even      *float64
 }
