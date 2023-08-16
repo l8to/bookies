@@ -19,14 +19,15 @@ func TestValidateOdds(t *testing.T) {
 		oddsType string
 		odds     float64
 		expected bool
-		newOdds  float64
+		newOdds  *float64
 	}{
-		{"Hdp", 2.0, true, 2.0},
-		{"HdpAway", 3.14, true, 3.14},
-		{"FhHdpHome", 1.8, false, 1.5},
-		{"FhHdp", 2.5, false, 2.0},
-		{"FhOu", 2.0, false, 2.0},
-		{"InvalidType", 2.0, false, 0},
+		{"Hdp", 2.0, true, utils.PointerOf(2.0)},
+		{"HdpAway", 3.14, true, utils.PointerOf(3.14)},
+		{"FhHdpHome", 1.8, false, utils.PointerOf(1.5)},
+		{"FhHdp", 2.5, false, utils.PointerOf(2.0)},
+		{"FhOu", 2.0, false, utils.PointerOf(2.0)},
+		{"Hdp", 0.3, false, nil},
+		{"InvalidType", 2.0, false, nil},
 	}
 
 	for _, tc := range testCases {
